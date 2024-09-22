@@ -1,0 +1,407 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample microservice API.",
+        "title": "My Microservice API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/lines": {
+            "get": {
+                "description": "Provide a list of all the lines",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bus"
+                ],
+                "summary": "List all of the lines",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Line"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stops": {
+            "get": {
+                "description": "Provide a list of all the stops",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bus"
+                ],
+                "summary": "List all of the stops",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Stop"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stops/find": {
+            "get": {
+                "description": "Provide a list of stops that match the text in their name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bus"
+                ],
+                "summary": "Find a stop by text in its name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Text to search for in stop name",
+                        "name": "text",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Stop"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stops/find/location": {
+            "get": {
+                "description": "Provide a list of stops in a given radius around a location",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bus"
+                ],
+                "summary": "Find a stop by its location",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Latitude",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Longitude",
+                        "name": "lon",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Radius in meters",
+                        "name": "radius",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Stop"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/stops/{stop_number}": {
+            "get": {
+                "description": "Provide a stop by its number",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bus"
+                ],
+                "summary": "Get a stop by its number",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Stop Number",
+                        "name": "stop_number",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Stop"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{provider}/{uuid}": {
+            "get": {
+                "description": "Provide a user by its UUID for a specific provider",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Identity"
+                ],
+                "summary": "Get a user by its UUID for a specific provider",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Identity"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Identity"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Identity"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{provider}/{uuid}/favorite_stops/{stop_number}": {
+            "post": {
+                "description": "Add a favorite stop to a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Identity"
+                ],
+                "summary": "Add a favorite stop to a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Stop Number",
+                        "name": "stop_number",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Identity"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove a favorite stop from a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Identity"
+                ],
+                "summary": "Remove a favorite stop from a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Stop Number",
+                        "name": "stop_number",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Identity"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.Identity": {
+            "type": "object",
+            "properties": {
+                "favorite_stops": {
+                    "description": "FavoriteStops is a list of the user's favorite stops",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.Stop"
+                    }
+                },
+                "id": {
+                    "description": "ID is the unique identifier of the identity",
+                    "type": "integer"
+                },
+                "provider": {
+                    "description": "Provider is the type of the identity provider",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/api.ProviderType"
+                        }
+                    ]
+                },
+                "uuid": {
+                    "description": "UUID is the unique identifier of the identity, usually provided by the auth provider",
+                    "type": "string"
+                }
+            }
+        },
+        "api.Line": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "ID is the unique identifier of the line",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name is the name of the line provided by the bus company",
+                    "type": "string"
+                }
+            }
+        },
+        "api.ProviderType": {
+            "type": "string",
+            "enum": [
+                "telegram"
+            ],
+            "x-enum-varnames": [
+                "ProviderTypeTelegram"
+            ]
+        },
+        "api.Stop": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "ID is the unique identifier of the stop",
+                    "type": "integer"
+                },
+                "location": {
+                    "description": "Location is the geographical location of the stop",
+                    "type": "object",
+                    "properties": {
+                        "lat": {
+                            "description": "Lat is the latitude of the stop",
+                            "type": "number"
+                        },
+                        "lon": {
+                            "description": "Lon is the longitude of the stop",
+                            "type": "number"
+                        }
+                    }
+                },
+                "name": {
+                    "description": "Name is the name of the stop",
+                    "type": "string"
+                },
+                "stop_id": {
+                    "description": "StopID is the number of the stop used internally by the bus company",
+                    "type": "integer"
+                },
+                "stop_number": {
+                    "description": "StopNumber is the number of the stop provided by the bus company",
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

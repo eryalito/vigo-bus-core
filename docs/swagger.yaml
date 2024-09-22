@@ -1,0 +1,274 @@
+basePath: /
+definitions:
+  api.Identity:
+    properties:
+      favorite_stops:
+        description: FavoriteStops is a list of the user's favorite stops
+        items:
+          $ref: '#/definitions/api.Stop'
+        type: array
+      id:
+        description: ID is the unique identifier of the identity
+        type: integer
+      provider:
+        allOf:
+        - $ref: '#/definitions/api.ProviderType'
+        description: Provider is the type of the identity provider
+      uuid:
+        description: UUID is the unique identifier of the identity, usually provided
+          by the auth provider
+        type: string
+    type: object
+  api.Line:
+    properties:
+      id:
+        description: ID is the unique identifier of the line
+        type: integer
+      name:
+        description: Name is the name of the line provided by the bus company
+        type: string
+    type: object
+  api.ProviderType:
+    enum:
+    - telegram
+    type: string
+    x-enum-varnames:
+    - ProviderTypeTelegram
+  api.Stop:
+    properties:
+      id:
+        description: ID is the unique identifier of the stop
+        type: integer
+      location:
+        description: Location is the geographical location of the stop
+        properties:
+          lat:
+            description: Lat is the latitude of the stop
+            type: number
+          lon:
+            description: Lon is the longitude of the stop
+            type: number
+        type: object
+      name:
+        description: Name is the name of the stop
+        type: string
+      stop_id:
+        description: StopID is the number of the stop used internally by the bus company
+        type: integer
+      stop_number:
+        description: StopNumber is the number of the stop provided by the bus company
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample microservice API.
+  title: My Microservice API
+  version: "1.0"
+paths:
+  /api/lines:
+    get:
+      description: Provide a list of all the lines
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.Line'
+            type: array
+      summary: List all of the lines
+      tags:
+      - Bus
+  /api/stops:
+    get:
+      description: Provide a list of all the stops
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.Stop'
+            type: array
+      summary: List all of the stops
+      tags:
+      - Bus
+  /api/stops/{stop_number}:
+    get:
+      description: Provide a stop by its number
+      parameters:
+      - description: Stop Number
+        in: path
+        name: stop_number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Stop'
+      summary: Get a stop by its number
+      tags:
+      - Bus
+  /api/stops/find:
+    get:
+      description: Provide a list of stops that match the text in their name
+      parameters:
+      - description: Text to search for in stop name
+        in: query
+        name: text
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.Stop'
+            type: array
+      summary: Find a stop by text in its name
+      tags:
+      - Bus
+  /api/stops/find/location:
+    get:
+      description: Provide a list of stops in a given radius around a location
+      parameters:
+      - description: Latitude
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Longitude
+        in: query
+        name: lon
+        required: true
+        type: number
+      - description: Radius in meters
+        in: query
+        name: radius
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.Stop'
+            type: array
+      summary: Find a stop by its location
+      tags:
+      - Bus
+  /api/users/{provider}/{uuid}:
+    get:
+      description: Provide a user by its UUID for a specific provider
+      parameters:
+      - description: Provider
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Identity'
+      summary: Get a user by its UUID for a specific provider
+      tags:
+      - Identity
+    post:
+      description: Create a new user
+      parameters:
+      - description: Provider
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Identity'
+      summary: Create a new user
+      tags:
+      - Identity
+  /api/users/{provider}/{uuid}/favorite_stops/{stop_number}:
+    delete:
+      description: Remove a favorite stop from a user
+      parameters:
+      - description: Provider
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Stop Number
+        in: path
+        name: stop_number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Identity'
+      summary: Remove a favorite stop from a user
+      tags:
+      - Identity
+    post:
+      description: Add a favorite stop to a user
+      parameters:
+      - description: Provider
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Stop Number
+        in: path
+        name: stop_number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Identity'
+      summary: Add a favorite stop to a user
+      tags:
+      - Identity
+swagger: "2.0"
