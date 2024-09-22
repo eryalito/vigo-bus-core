@@ -168,6 +168,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/stops/{stop_number}/schedule": {
+            "get": {
+                "description": "Provide the schedule for a stop",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bus"
+                ],
+                "summary": "Get the schedule for a stop",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Stop Number",
+                        "name": "stop_number",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.StopSchedule"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/{provider}/{uuid}": {
             "get": {
                 "description": "Provide a user by its UUID for a specific provider",
@@ -374,6 +406,27 @@ const docTemplate = `{
                 "ProviderTypeTelegram"
             ]
         },
+        "api.Schedule": {
+            "type": "object",
+            "properties": {
+                "line": {
+                    "description": "Line is the line that the schedule is for",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/api.Line"
+                        }
+                    ]
+                },
+                "route": {
+                    "description": "Route is the route that the schedule is for",
+                    "type": "string"
+                },
+                "time": {
+                    "description": "Time is the time of the schedule",
+                    "type": "integer"
+                }
+            }
+        },
         "api.Stop": {
             "type": "object",
             "properties": {
@@ -408,8 +461,41 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "api.StopSchedule": {
+            "type": "object",
+            "properties": {
+                "schedules": {
+                    "description": "Schedules is a list of the schedules for the stop",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.Schedule"
+                    }
+                },
+                "stop": {
+                    "description": "Stop is the stop that the schedule is for",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/api.Stop"
+                        }
+                    ]
+                }
+            }
         }
-    }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "\"Type 'Bearer' followed by a space and then your token.\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "security": [
+        {
+            "BearerAuth": []
+        }
+    ]
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

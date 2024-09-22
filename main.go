@@ -14,11 +14,16 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title My Microservice API
+// @title Vigo Bus Core API
 // @version 1.0
-// @description This is a sample microservice API.
+// @description This is the API for the Vigo Bus Core project.
 // @host localhost:8080
 // @BasePath /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description "Type 'Bearer' followed by a space and then your token."
 
 func main() {
 	config.Init()
@@ -32,19 +37,21 @@ func main() {
 
 	// API endpoints with auth middleware
 	api := r.Group("/api")
-	// api.Use(middleware.AuthMiddleware)
-	// {
-	api.GET("/stops", handlers.ListStops)
-	api.GET("/stops/:stop_number", handlers.GetStop)
-	api.GET("/stops/find", handlers.FindStops)
-	api.GET("/stops/find/location", handlers.FindStopsByLocation)
-	api.GET("/lines", handlers.ListStops)
+	// @security BearerAuth
+	api.Use(middleware.AuthMiddleware)
+	{
+		api.GET("/stops", handlers.ListStops)
+		api.GET("/stops/:stop_number", handlers.GetStop)
+		api.GET("/stops/:stop_number/schedule", handlers.GetStopSchedule)
+		api.GET("/stops/find", handlers.FindStops)
+		api.GET("/stops/find/location", handlers.FindStopsByLocation)
+		api.GET("/lines", handlers.ListStops)
 
-	api.GET("/users/:provider/:uuid", handlers.GetUser)
-	api.POST("/users/:provider/:uuid", handlers.CreateUser)
-	api.POST("/users/:provider/:uuid/favorite_stops/:stop_number", handlers.AddFavoriteStopToIdentity)
-	api.DELETE("/users/:provider/:uuid/favorite_stops/:stop_number", handlers.RemoveFavoriteStopFromIdentity)
-	// }
+		api.GET("/users/:provider/:uuid", handlers.GetUser)
+		api.POST("/users/:provider/:uuid", handlers.CreateUser)
+		api.POST("/users/:provider/:uuid/favorite_stops/:stop_number", handlers.AddFavoriteStopToIdentity)
+		api.DELETE("/users/:provider/:uuid/favorite_stops/:stop_number", handlers.RemoveFavoriteStopFromIdentity)
+	}
 
 	r.Run(":" + config.Port)
 }

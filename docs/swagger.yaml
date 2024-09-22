@@ -34,6 +34,19 @@ definitions:
     type: string
     x-enum-varnames:
     - ProviderTypeTelegram
+  api.Schedule:
+    properties:
+      line:
+        allOf:
+        - $ref: '#/definitions/api.Line'
+        description: Line is the line that the schedule is for
+      route:
+        description: Route is the route that the schedule is for
+        type: string
+      time:
+        description: Time is the time of the schedule
+        type: integer
+    type: object
   api.Stop:
     properties:
       id:
@@ -58,6 +71,18 @@ definitions:
       stop_number:
         description: StopNumber is the number of the stop provided by the bus company
         type: integer
+    type: object
+  api.StopSchedule:
+    properties:
+      schedules:
+        description: Schedules is a list of the schedules for the stop
+        items:
+          $ref: '#/definitions/api.Schedule'
+        type: array
+      stop:
+        allOf:
+        - $ref: '#/definitions/api.Stop'
+        description: Stop is the stop that the schedule is for
     type: object
 host: localhost:8080
 info:
@@ -113,6 +138,27 @@ paths:
           schema:
             $ref: '#/definitions/api.Stop'
       summary: Get a stop by its number
+      tags:
+      - Bus
+  /api/stops/{stop_number}/schedule:
+    get:
+      description: Provide the schedule for a stop
+      parameters:
+      - description: Stop Number
+        in: path
+        name: stop_number
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.StopSchedule'
+            type: array
+      summary: Get the schedule for a stop
       tags:
       - Bus
   /api/stops/find:
@@ -271,4 +317,12 @@ paths:
       summary: Add a favorite stop to a user
       tags:
       - Identity
+security:
+- BearerAuth: []
+securityDefinitions:
+  BearerAuth:
+    description: '"Type ''Bearer'' followed by a space and then your token."'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

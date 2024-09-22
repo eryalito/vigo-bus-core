@@ -140,6 +140,19 @@ func (c *BusConnector) GetLines() ([]api.Line, error) {
 	return lines, nil
 }
 
+// GetLineByName retrieves a line from the lines table by name
+func (c *BusConnector) GetLineByName(name string) (api.Line, error) {
+	query := `SELECT id, name FROM lines WHERE name = ?`
+	row := c.DB.QueryRow(query, name)
+
+	var line api.Line
+	if err := row.Scan(&line.ID, &line.Name); err != nil {
+		return api.Line{}, fmt.Errorf("failed to scan row: %v", err)
+	}
+
+	return line, nil
+}
+
 // GetStops retrieves all stops from the stops table
 func (c *BusConnector) GetStops() ([]api.Stop, error) {
 	query := `SELECT id, stop_number, stop_id, name, lat, lon FROM stops`

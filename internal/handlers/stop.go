@@ -5,6 +5,8 @@ import (
 	"strconv"
 
 	"github.com/eryalito/vigo-bus-core/internal/sqlite"
+	"github.com/eryalito/vigo-bus-core/internal/vitrasa"
+	"github.com/eryalito/vigo-bus-core/pkg/api"
 
 	"github.com/gin-gonic/gin"
 )
@@ -143,4 +145,50 @@ func FindStopsByLocation(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, stops)
+}
+
+// GetStopSchedule godoc
+// @Summary Get the schedule for a stop
+// @Description Provide the schedule for a stop
+// @Tags Bus
+// @Produce  json
+// @Param stop_number path int true "Stop Number"
+// @Success 200 {array} api.StopSchedule
+// @Router /api/stops/{stop_number}/schedule [get]
+func GetStopSchedule(c *gin.Context) {
+	stopNumber := c.Param("stop_number")
+	stopNumberInt, err := strconv.Atoi(stopNumber)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stop number"})
+		return
+	}
+
+	sdb_conn, err := sqlite.NewBusConnector()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	stop, err := sdb_conn.GetStopByNumber(stopNumberInt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if stop == (api.Stop{}) {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Stop not found"})
+		return
+	}
+
+	vitrasa_client := vitrasa.NewVitrasaClient()
+	schedule, err := vitrasa_client.GetSchedules(stop.StopNumber)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, &api.StopSchedule{
+		Stop:      stop,
+		Schedules: schedule,
+	})
 }
