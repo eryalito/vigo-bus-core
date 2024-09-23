@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a sample microservice API.",
-        "title": "My Microservice API",
+        "description": "This is the API for the Vigo Bus Core project.",
+        "title": "Vigo Bus Core API",
         "contact": {},
         "version": "1.0"
     },
