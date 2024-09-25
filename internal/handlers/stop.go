@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/eryalito/vigo-bus-core/internal/config"
 	"github.com/eryalito/vigo-bus-core/internal/sqlite"
+	"github.com/eryalito/vigo-bus-core/internal/utils"
 	"github.com/eryalito/vigo-bus-core/internal/vitrasa"
 	"github.com/eryalito/vigo-bus-core/pkg/api"
 
@@ -191,4 +194,99 @@ func GetStopSchedule(c *gin.Context) {
 		Stop:      stop,
 		Schedules: schedule,
 	})
+}
+
+// GetNearbyStopsImage godoc
+// @Summary Get the nearby stops as a PNG image and JSON array
+// @Description Provide the nearby stops for a location and return a PNG image and JSON array
+// @Tags Bus
+// @Produce  json
+// @Param lat query float64 true "Latitude"
+// @Param lon query float64 true "Longitude"
+// @Param radius query float64 true "Radius in meters"
+// @Param limit query int false "Limit of stops to return, default 9"
+// @Success 200 {object} api.NearbyStops
+// @Router /api/stops/find/location/image [get]
+func GetNearbyStopsImage(c *gin.Context) {
+	lat, err := strconv.ParseFloat(c.Query("lat"), 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid latitude"})
+		return
+	}
+
+	lon, err := strconv.ParseFloat(c.Query("lon"), 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid longitude"})
+		return
+	}
+
+	radius, err := strconv.ParseFloat(c.Query("radius"), 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid radius"})
+		return
+	}
+
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "9"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
+		return
+	}
+
+	sdb_conn, err := sqlite.NewBusConnector()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	stops, err := sdb_conn.FindStopsByLocation(lat, lon, radius)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Sort the stops by distance
+	utils.SortStopsByDistance(lat, lon, stops)
+
+	// Truncate the stops to the limit
+	if len(stops) > limit {
+		stops = stops[:limit]
+	}
+
+	// Create the image
+	img, err := utils.GenerateImageWithMarkers(config.GoogleMapsAPIKey, struct {
+		Lat float64 `json:"lat"`
+		Lon float64 `json:"lon"`
+	}{
+		Lat: lat,
+		Lon: lon,
+	}, stops)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create image"})
+		return
+	}
+
+	// Encode the image to base64
+	encodedImage, err := utils.PngToBase64(img)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create image"})
+		return
+	}
+
+	// Create the NearbyStops object
+	nearbyStops := api.NearbyStops{
+		Stops:   stops,
+		Image64: encodedImage,
+		Radius:  radius,
+		Origin: struct {
+			Lat float64 `json:"lat"`
+			Lon float64 `json:"lon"`
+		}{
+			Lat: lat,
+			Lon: lon,
+		},
+	}
+
+	// Return the NearbyStops object
+	c.JSON(http.StatusOK, nearbyStops)
 }

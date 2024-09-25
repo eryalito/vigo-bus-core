@@ -139,6 +139,55 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/stops/find/location/image": {
+            "get": {
+                "description": "Provide the nearby stops for a location and return a PNG image and JSON array",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bus"
+                ],
+                "summary": "Get the nearby stops as a PNG image and JSON array",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Latitude",
+                        "name": "lat",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Longitude",
+                        "name": "lon",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Radius in meters",
+                        "name": "radius",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit of stops to return, default 9",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.NearbyStops"
+                        }
+                    }
+                }
+            }
+        },
         "/api/stops/{stop_number}": {
             "get": {
                 "description": "Provide a stop by its number",
@@ -394,6 +443,34 @@ const docTemplate = `{
                 "name": {
                     "description": "Name is the name of the line provided by the bus company",
                     "type": "string"
+                }
+            }
+        },
+        "api.NearbyStops": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "origin": {
+                    "type": "object",
+                    "properties": {
+                        "lat": {
+                            "type": "number"
+                        },
+                        "lon": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "radius": {
+                    "type": "number"
+                },
+                "stops": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.Stop"
+                    }
                 }
             }
         },

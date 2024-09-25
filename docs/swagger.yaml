@@ -28,6 +28,24 @@ definitions:
         description: Name is the name of the line provided by the bus company
         type: string
     type: object
+  api.NearbyStops:
+    properties:
+      image:
+        type: string
+      origin:
+        properties:
+          lat:
+            type: number
+          lon:
+            type: number
+        type: object
+      radius:
+        type: number
+      stops:
+        items:
+          $ref: '#/definitions/api.Stop'
+        type: array
+    type: object
   api.ProviderType:
     enum:
     - telegram
@@ -211,6 +229,40 @@ paths:
               $ref: '#/definitions/api.Stop'
             type: array
       summary: Find a stop by its location
+      tags:
+      - Bus
+  /api/stops/find/location/image:
+    get:
+      description: Provide the nearby stops for a location and return a PNG image
+        and JSON array
+      parameters:
+      - description: Latitude
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Longitude
+        in: query
+        name: lon
+        required: true
+        type: number
+      - description: Radius in meters
+        in: query
+        name: radius
+        required: true
+        type: number
+      - description: Limit of stops to return, default 9
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.NearbyStops'
+      summary: Get the nearby stops as a PNG image and JSON array
       tags:
       - Bus
   /api/users/{provider}/{uuid}:

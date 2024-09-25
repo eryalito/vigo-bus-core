@@ -45,6 +45,7 @@ func main() {
 		api.GET("/stops/:stop_number/schedule", handlers.GetStopSchedule)
 		api.GET("/stops/find", handlers.FindStops)
 		api.GET("/stops/find/location", handlers.FindStopsByLocation)
+		api.GET("/stops/find/location/image", handlers.GetNearbyStopsImage)
 		api.GET("/lines", handlers.ListStops)
 
 		api.GET("/users/:provider/:uuid", handlers.GetUser)

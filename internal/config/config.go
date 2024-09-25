@@ -9,11 +9,12 @@ import (
 )
 
 var (
-	Port           string
-	Token          string
-	StopsDBPath    string
-	IdentityDBPath string
-	RateLimiter    struct {
+	Port             string
+	Token            string
+	StopsDBPath      string
+	IdentityDBPath   string
+	GoogleMapsAPIKey string
+	RateLimiter      struct {
 		Limit int
 		Burst int
 	}
@@ -25,6 +26,7 @@ func Init() {
 	flag.StringVar(&Token, "token", getEnv("TOKEN", "your-secret-token"), "Authentication token")
 	flag.StringVar(&StopsDBPath, "stops-db-path", getEnv("STOPS_DB_PATH", "stops.db"), "Path to the stops database")
 	flag.StringVar(&IdentityDBPath, "identity-db-path", getEnv("IDENTITY_DB_PATH", "identity.db"), "Path to the identity database")
+	flag.StringVar(&GoogleMapsAPIKey, "google-maps-api-key", getEnv("GOOGLE_MAPS_API_KEY", ""), "Google maps api key for generating images")
 	limit, err := strconv.Atoi(getEnv("RATE_LIMITER_LIMIT", "1"))
 	if err != nil {
 		log.Fatal(fmt.Errorf("failed to parse RATE_LIMITER_LIMIT: %v", err))
