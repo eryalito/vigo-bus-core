@@ -156,7 +156,7 @@ func FindStopsByLocation(c *gin.Context) {
 // @Tags Bus
 // @Produce  json
 // @Param stop_number path int true "Stop Number"
-// @Success 200 {array} api.StopSchedule
+// @Success 200 {object} api.StopSchedule
 // @Router /api/stops/{stop_number}/schedule [get]
 func GetStopSchedule(c *gin.Context) {
 	stopNumber := c.Param("stop_number")

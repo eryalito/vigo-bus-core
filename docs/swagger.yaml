@@ -173,9 +173,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/api.StopSchedule'
-            type: array
+            $ref: '#/definitions/api.StopSchedule'
       summary: Get the schedule for a stop
       tags:
       - Bus
