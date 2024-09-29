@@ -35,6 +35,23 @@ func GetUser(c *gin.Context) {
 		return
 	}
 
+	// Populate the favorite stops with the info from the bus stops database
+	bdb_conn, err := sqlite.NewBusConnector()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer bdb_conn.Close()
+
+	for i, stop := range user.FavoriteStops {
+		stopInfo, err := bdb_conn.GetStopByNumber(stop.StopNumber)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		user.FavoriteStops[i] = stopInfo
+	}
+
 	c.JSON(http.StatusOK, user)
 }
 
