@@ -10,6 +10,10 @@ definitions:
       id:
         description: ID is the unique identifier of the identity
         type: integer
+      metadata:
+        description: Metadata is a genric string that holds additional information
+          about the identity
+        type: string
       provider:
         allOf:
         - $ref: '#/definitions/api.ProviderType'
@@ -365,6 +369,36 @@ paths:
           schema:
             $ref: '#/definitions/api.Identity'
       summary: Add a favorite stop to a user
+      tags:
+      - Identity
+  /api/users/{provider}/{uuid}/metadata:
+    put:
+      description: Update the metadata of a user
+      parameters:
+      - description: Provider
+        in: path
+        name: provider
+        required: true
+        type: string
+      - description: UUID
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Metadata
+        in: body
+        name: metadata
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Identity'
+      summary: Update the metadata of a user
       tags:
       - Identity
 security:

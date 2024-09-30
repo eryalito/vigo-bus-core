@@ -35,7 +35,8 @@ func (c *IdentityConnector) createTables() error {
 		`CREATE TABLE IF NOT EXISTS identities (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             uuid TEXT NOT NULL,
-            provider TEXT NOT NULL
+            provider TEXT NOT NULL,
+            metadata TEXT
         );`,
 		`CREATE TABLE IF NOT EXISTS favorite_stops (
             identity_id INTEGER,
@@ -59,8 +60,8 @@ func (c *IdentityConnector) InsertIdentity(identity *api.Identity) error {
 		return fmt.Errorf("failed to begin transaction: %v", err)
 	}
 
-	query := `INSERT INTO identities (uuid, provider) VALUES (?, ?)`
-	result, err := tx.Exec(query, identity.UUID, identity.Provider)
+	query := `INSERT INTO identities (metadata, uuid, provider) VALUES (?, ?, ?)`
+	result, err := tx.Exec(query, identity.Metadata, identity.UUID, identity.Provider)
 	if err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to insert identity: %v", err)
@@ -89,11 +90,11 @@ func (c *IdentityConnector) InsertIdentity(identity *api.Identity) error {
 
 // GetIdentity retrieves an identity by ID
 func (c *IdentityConnector) GetIdentity(id int) (*api.Identity, error) {
-	query := `SELECT id, uuid, provider FROM identities WHERE id = ?`
+	query := `SELECT id, metadata, uuid, provider FROM identities WHERE id = ?`
 	row := c.DB.QueryRow(query, id)
 
 	var identity api.Identity
-	if err := row.Scan(&identity.ID, &identity.UUID, &identity.Provider); err != nil {
+	if err := row.Scan(&identity.ID, &identity.Metadata, &identity.UUID, &identity.Provider); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil // No identity found
 		}
@@ -125,8 +126,8 @@ func (c *IdentityConnector) UpdateIdentity(identity *api.Identity) error {
 		return fmt.Errorf("failed to begin transaction: %v", err)
 	}
 
-	query := `UPDATE identities SET uuid = ?, provider = ? WHERE id = ?`
-	if _, err := tx.Exec(query, identity.UUID, identity.Provider, identity.ID); err != nil {
+	query := `UPDATE identities SET metadata = ?, uuid = ?, provider = ? WHERE id = ?`
+	if _, err := tx.Exec(query, identity.Metadata, identity.UUID, identity.Provider, identity.ID); err != nil {
 		tx.Rollback()
 		return fmt.Errorf("failed to update identity: %v", err)
 	}

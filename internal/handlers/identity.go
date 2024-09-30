@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"io"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -43,13 +45,15 @@ func GetUser(c *gin.Context) {
 	}
 	defer bdb_conn.Close()
 
-	for i, stop := range user.FavoriteStops {
-		stopInfo, err := bdb_conn.GetStopByNumber(stop.StopNumber)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
+	if user != nil {
+		for i, stop := range user.FavoriteStops {
+			stopInfo, err := bdb_conn.GetStopByNumber(stop.StopNumber)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+			user.FavoriteStops[i] = stopInfo
 		}
-		user.FavoriteStops[i] = stopInfo
 	}
 
 	c.JSON(http.StatusOK, user)
@@ -234,6 +238,55 @@ func RemoveFavoriteStopFromIdentity(c *gin.Context) {
 
 	user.FavoriteStops = append(user.FavoriteStops[:stopIndex], user.FavoriteStops[stopIndex+1:]...)
 
+	err = sdb_conn.UpdateIdentity(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
+// UpdateMetadata godoc
+// @Summary Update the metadata of a user
+// @Description Update the metadata of a user
+// @Tags Identity
+// @Produce  json
+// @Param provider path string true "Provider"
+// @Param uuid path string true "UUID"
+// @Param metadata body string true "Metadata"
+// @Success 200 {object} api.Identity
+// @Router /api/users/{provider}/{uuid}/metadata [put]
+func UpdateMetadata(c *gin.Context) {
+	provider := c.Param("provider")
+	uuid := c.Param("uuid")
+	var metadata string
+	bodyBytes, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	metadata = string(bodyBytes)
+
+	sdb_conn, err := sqlite.NewIdentityConnector()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer sdb_conn.Close()
+
+	user, err := sdb_conn.GetUserByUUID(provider, uuid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if user == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	user.Metadata = metadata
+	log.Println(metadata)
 	err = sdb_conn.UpdateIdentity(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

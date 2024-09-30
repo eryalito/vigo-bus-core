@@ -21,4 +21,7 @@ type Identity struct {
 
 	// FavoriteStops is a list of the user's favorite stops
 	FavoriteStops []Stop `json:"favorite_stops"`
+
+	// Metadata is a genric string that holds additional information about the identity
+	Metadata string `json:"metadata"`
 }

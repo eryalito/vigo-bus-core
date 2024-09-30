@@ -50,6 +50,7 @@ func main() {
 
 		api.GET("/users/:provider/:uuid", handlers.GetUser)
 		api.POST("/users/:provider/:uuid", handlers.CreateUser)
+		api.PUT("/users/:provider/:uuid/metadata", handlers.UpdateMetadata)
 		api.POST("/users/:provider/:uuid/favorite_stops/:stop_number", handlers.AddFavoriteStopToIdentity)
 		api.DELETE("/users/:provider/:uuid/favorite_stops/:stop_number", handlers.RemoveFavoriteStopFromIdentity)
 	}

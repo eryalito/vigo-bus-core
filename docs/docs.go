@@ -399,6 +399,51 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/users/{provider}/{uuid}/metadata": {
+            "put": {
+                "description": "Update the metadata of a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Identity"
+                ],
+                "summary": "Update the metadata of a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider",
+                        "name": "provider",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Metadata",
+                        "name": "metadata",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Identity"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -415,6 +460,10 @@ const docTemplate = `{
                 "id": {
                     "description": "ID is the unique identifier of the identity",
                     "type": "integer"
+                },
+                "metadata": {
+                    "description": "Metadata is a genric string that holds additional information about the identity",
+                    "type": "string"
                 },
                 "provider": {
                     "description": "Provider is the type of the identity provider",
