@@ -53,8 +53,12 @@ func (c *VitrasaClient) GetSchedules(stopNumber int) ([]api.Schedule, error) {
 
 // extractSchedule extracts the schedule information from the HTML document
 func extractSchedule(n *html.Node) ([]api.Schedule, error) {
-	targetNode := findNode(n, []string{"html", "body", "form", "div", "table", "tbody", "tr[1]", "td[1]", "div", "table", "tbody"})
-
+	targetNode := findNodeById(n, "GridView1")
+	if targetNode == nil {
+		fmt.Println("GridView1 node not found")
+		return nil, errors.New("GridView1 node not found")
+	}
+	targetNode = findNode(targetNode, []string{"tbody"})
 	if targetNode == nil {
 		fmt.Println("Target node not found")
 		return nil, errors.New("target node not found")
@@ -77,24 +81,27 @@ func extractSchedule(n *html.Node) ([]api.Schedule, error) {
 			for field := c.FirstChild; field != nil; field = field.NextSibling {
 				if field.Type == html.ElementNode && field.Data == "td" {
 					fieldCounter++
-					data := findNode(field, []string{"font"}).FirstChild.Data
-					switch fieldCounter {
-					case 1:
-						line, err := retrieveLine(data)
-						if err != nil {
-							fmt.Printf("Error retrieving line: %v\n", err)
-							return nil, errors.New("error retrieving line")
+					childNode := findNode(field, []string{"font"}).FirstChild
+					if childNode != nil && childNode.Type == html.TextNode {
+						data := childNode.Data
+						switch fieldCounter {
+						case 1:
+							line, err := retrieveLine(data)
+							if err != nil {
+								fmt.Printf("Error retrieving line %s: %v\n", data, err)
+								return nil, errors.New("error retrieving line")
+							}
+							schedule.Line = line
+						case 2:
+							schedule.Route = data
+						case 3:
+							time, err := strconv.Atoi(data)
+							if err != nil {
+								fmt.Printf("Error converting time to integer: %v\n", err)
+								return nil, err
+							}
+							schedule.Time = time
 						}
-						schedule.Line = line
-					case 2:
-						schedule.Route = data
-					case 3:
-						time, err := strconv.Atoi(data)
-						if err != nil {
-							fmt.Printf("Error converting time to integer: %v\n", err)
-							return nil, err
-						}
-						schedule.Time = time
 					}
 				}
 			}
@@ -118,6 +125,23 @@ func retrieveLine(name string) (api.Line, error) {
 		return api.Line{}, fmt.Errorf("failed to get line by name: %v", err)
 	}
 	return line, nil
+}
+func findNodeById(n *html.Node, id string) *html.Node {
+	if n.Type == html.ElementNode {
+		for _, attr := range n.Attr {
+			if attr.Key == "id" && attr.Val == id {
+				return n
+			}
+		}
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if result := findNodeById(c, id); result != nil {
+			return result
+		}
+	}
+
+	return nil
 }
 
 // findNode traverses the HTML tree to find the node at the specified path
