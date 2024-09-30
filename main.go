@@ -46,7 +46,7 @@ func main() {
 		api.GET("/stops/find", handlers.FindStops)
 		api.GET("/stops/find/location", handlers.FindStopsByLocation)
 		api.GET("/stops/find/location/image", handlers.GetNearbyStopsImage)
-		api.GET("/lines", handlers.ListStops)
+		api.GET("/lines", handlers.ListLines)
 
 		api.GET("/users/:provider/:uuid", handlers.GetUser)
 		api.POST("/users/:provider/:uuid", handlers.CreateUser)
