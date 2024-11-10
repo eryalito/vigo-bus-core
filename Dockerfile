@@ -8,9 +8,9 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-extldflags "-static"' -o /app/main .
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o /app/main .
 
-FROM scratch
+FROM ubuntu:24.04
 
 COPY --from=build /app/main /app/main
 
