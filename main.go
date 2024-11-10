@@ -55,5 +55,7 @@ func main() {
 		api.DELETE("/users/:provider/:uuid/favorite_stops/:stop_number", handlers.RemoveFavoriteStopFromIdentity)
 	}
 
+	r.GET("/health", handlers.HealthCheck)
+
 	r.Run(":" + config.Port)
 }

@@ -401,6 +401,19 @@ paths:
       summary: Update the metadata of a user
       tags:
       - Identity
+  /health:
+    get:
+      description: Health endpoint
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Health endpoint
+      tags:
+      - Health
 security:
 - BearerAuth: []
 securityDefinitions:
