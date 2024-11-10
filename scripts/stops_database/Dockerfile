@@ -6,6 +6,6 @@ WORKDIR /app
 
 COPY database_generator* /app
 
-RUN apt-get update && apt install -y python3 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt install -y python3 curl && rm -rf /var/lib/apt/lists/*
 
 CMD ["/bin/bash", "/app/database_generator.sh"]
