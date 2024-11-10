@@ -32,9 +32,16 @@ jobs:
       if: github.event_name == 'release'
       run: echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
 
-    - name: Build and push Docker image
+    - name: Build and push application image
       run: |
         TAG=${{ github.event_name == 'release' && steps.extract_tag.outputs.tag || github.event.inputs.tag }}
         docker build -t ghcr.io/${{ github.repository }}:latest -t ghcr.io/${{ github.repository }}:${TAG} .
         docker push ghcr.io/${{ github.repository }}:latest
         docker push ghcr.io/${{ github.repository }}:${TAG}
+
+    - name: Build and push init image
+      run: |
+        TAG=${{ github.event_name == 'release' && steps.extract_tag.outputs.tag || github.event.inputs.tag }}
+        docker build -t ghcr.io/${{ github.repository }}-init:latest -t ghcr.io/${{ github.repository }}-init:${TAG} scripts/stops_database
+        docker push ghcr.io/${{ github.repository }}-init:latest
+        docker push ghcr.io/${{ github.repository }}-init:${TAG}
