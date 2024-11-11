@@ -261,6 +261,7 @@ func GetNearbyStopsImage(c *gin.Context) {
 		Lon: lon,
 	}, stops)
 	if err != nil {
+		log.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create image"})
 		return
 	}
